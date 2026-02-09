@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>History</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Google Font (Chrome-like) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #1f1f1f;
+  color: #e8eaed;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: #202124;
+  padding: 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.logo i {
+  color: #8ab4f8;
+}
+
+.nav {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #e8eaed;
+  padding: 12px;
+  border-radius: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav.active {
+  background: #8ab4f8;
+  color: #202124;
+  font-weight: 500;
+}
+
+.nav:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* MAIN */
+main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.top {
+  display: flex;
+  justify-content: center;
+}
+
+.search {
+  width: 100%;
+  background: #303134;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 10px;
+}
+
+.search input {
+  background: none;
+  border: none;
+  outline: none;
+  color: white;
+  width: 100%;
+  font-size: 15px;
+}
+
+/* TOGGLE */
+.view-toggle {
+  display: flex;
+  gap: 24px;
+  margin: 20px 0;
+  color: #9aa0a6;
+}
+
+.view-toggle span.active {
+  color: #8ab4f8;
+  border-bottom: 2px solid #8ab4f8;
+  padding-bottom: 6px;
+}
+
+/* HISTORY */
+.history h3 {
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.entry {
+  display: flex;
+  align-items: center;
+  padding: 10px 4px;
+  border-radius: 6px;
+}
+
+.entry:hover {
+  background: #2a2b2e;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #9aa0a6;
+  border-radius: 3px;
+  margin-right: 16px;
+}
+
+.entry.checked .checkbox {
+  background: #8ab4f8;
+  border-color: #8ab4f8;
+}
+
+.time {
+  width: 70px;
+  font-size: 13px;
+  color: #9aa0a6;
+}
+
+.site {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.site img {
+  width: 16px;
+  height: 16px;
+}
+
+.title {
+  font-size: 14px;
+}
+
+.url {
+  font-size: 12px;
+  color: #9aa0a6;
+  margin-left: 6px;
+}
+
+.menu {
+  color: #9aa0a6;
+  padding: 6px;
+}
+</style>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <i class="fa-brands fa-chrome"></i>
+      <span>History</span>
+    </div>
+
+    <nav>
+      <button class="nav active">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Chrome history
+      </button>
+      <button class="nav">
+        <i class="fa-solid fa-laptop"></i>
+        Tabs from other devices
+      </button>
+      <button class="nav">
+        <i class="fa-solid fa-trash"></i>
+        Delete browsing data
+      </button>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <!-- SEARCH BAR -->
+    <div class="top">
+      <div class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput" placeholder="Search history">
+      </div>
+    </div>
+
+    <!-- TOGGLES -->
+    <div class="view-toggle">
+      <span class="active"><i class="fa-solid fa-list"></i> By date</span>
+      <span><i class="fa-solid fa-diagram-project"></i> By group</span>
+    </div>
+
+    <!-- HISTORY -->
+    <section class="history">
+      <h3>Today – Monday, February 9, 2026</h3>
+
+      <div id="historyList"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const historyList = document.getElementById("historyList");
+const searchInput = document.getElementById("searchInput");
+
+const sites = {
+  zoom: {
+    domain: "zoom.us",
+    titles: [
+      "Zoom Meeting",
+      "Class Session – Zoom",
+      "Lecture – Zoom",
+      "Zoom – Waiting for Host"
+    ]
+  },
+  connexus: {
+    domain: "www.connexus.com",
+    titles: [
+      "Connexus | Dashboard",
+      "Connexus | Assignment",
+      "Connexus | Lesson Overview",
+      "Connexus | Grades"
+    ]
+  },
+  schoology: {
+    domain: "schoology.com",
+    titles: [
+      "Schoology | Course Materials",
+      "Schoology | Assignment",
+      "Schoology | Discussion",
+      "Schoology | Grades"
+    ]
+  },
+  clever: {
+    domain: "clever.com",
+    titles: [
+      "Clever | Student Portal",
+      "Clever | Login",
+      "Clever | Applications"
+    ]
+  }
+};
+
+function randomBetween(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function formatTime(h, m) {
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
+function generateHistory() {
+  const data = [];
+  const today = new Date();
+
+  for (let d = 0; d < 21; d++) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - d);
+
+    // Skip weekends for Zoom realism
+    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+
+    /* ZOOM MEETINGS */
+    if (!isWeekend) {
+      const zoomCount = randomBetween(3, 4);
+      for (let i = 0; i < zoomCount; i++) {
+        const hour = randomBetween(8, 16);
+        const minute = randomBetween(0, 59);
+
+        data.push({
+          date: day.toDateString(),
+          time: formatTime(hour, minute),
+          title: sites.zoom.titles[randomBetween(0, 3)],
+          url: sites.zoom.domain
+        });
+      }
+    }
+
+    /* SCHOOL PLATFORMS */
+    ["connexus", "schoology", "clever"].forEach(site => {
+      const count = randomBetween(1, 3);
+      for (let i = 0; i < count; i++) {
+        const hour = randomBetween(7, 22);
+        const minute = randomBetween(0, 59);
+
+        data.push({
+          date: day.toDateString(),
+          time: formatTime(hour, minute),
+          title: sites[site].titles[randomBetween(0, sites[site].titles.length - 1)],
+          url: sites[site].domain
+        });
+      }
+    });
+  }
+
+  return data;
+}
+
+const historyData = generateHistory();
+
+function render(entries) {
+  historyList.innerHTML = "";
+
+  const grouped = {};
+  entries.forEach(e => {
+    grouped[e.date] ??= [];
+    grouped[e.date].push(e);
+  });
+
+  Object.keys(grouped).forEach(date => {
+    const h = document.createElement("h3");
+    h.textContent = date === new Date().toDateString()
+      ? "Today – " + date
+      : date;
+    historyList.appendChild(h);
+
+    grouped[date]
+      .sort((a, b) => new Date(`1970/1/1 ${b.time}`) - new Date(`1970/1/1 ${a.time}`))
+      .forEach(item => {
+        const row = document.createElement("div");
+        row.className = "entry";
+
+        row.innerHTML = `
+          <div class="checkbox"></div>
+          <div class="time">${item.time}</div>
+          <div class="site">
+            <img src="https://www.google.com/s2/favicons?domain=${item.url}&sz=64">
+            <div>
+              <div class="title">${item.title}</div>
+              <div class="url">${item.url}</div>
+            </div>
+          </div>
+          <div class="menu">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </div>
+        `;
+
+        row.querySelector(".checkbox").onclick = () =>
+          row.classList.toggle("checked");
+
+        historyList.appendChild(row);
+      });
+  });
+}
+
+searchInput.addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  render(historyData.filter(h =>
+    h.title.toLowerCase().includes(q) ||
+    h.url.toLowerCase().includes(q)
+  ));
+});
+
+render(historyData);
+</script>
+</body>
+</html>
